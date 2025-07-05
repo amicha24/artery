@@ -3,6 +3,7 @@ add_library(core SHARED
     StaticNodeManager.cc
     application/CaObject.cc
     application/CaService.cc
+    application/ClusterService.cc
     application/DenmObject.cc
     application/DenService.cc
     application/ExampleService.cc
