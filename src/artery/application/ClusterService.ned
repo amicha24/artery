@@ -17,4 +17,13 @@ package artery.application;
 
 simple ClusterService like ItsG5Service
 {
+    parameters:
+        double clusterRange @unit(m) = default(100m);
+        double maxSpeedDifference @unit(mps) = default(10mps);
+        double maxHeadingDifference @unit(rad) = default(0.52rad);
+        double maintenanceInterval @unit(s) = default(2s);
+        double memberTimeout @unit(s) = default(5s);
+        
+        @class(ClusterService);
+        @display("i=block/network2");
 }

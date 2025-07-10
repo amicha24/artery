@@ -9,12 +9,38 @@
 
 #include "artery/application/ItsG5Service.h"
 #include "artery/application/NetworkInterface.h"
+#include "artery/application/Sampling.h"
+#include "artery/utility/Geometry.h"
+#include <vanetza/units/velocity.hpp>
+#include <vanetza/units/angle.hpp>
+#include <vanetza/units/length.hpp>
+#include <omnetpp/simtime.h>
+#include <set>
+#include <map>
 
-// forward declaration
+// forward declarations
 namespace traci { class VehicleController; }
 
 namespace artery
 {
+
+class LocalDynamicMap;
+class Timer;
+class VehicleDataProvider;
+
+enum class ClusterRole {
+    UNCLUSTERED,
+    CLUSTER_HEAD,
+    CLUSTER_MEMBER
+};
+
+struct ClusterMember {
+    uint32_t stationId;
+    omnetpp::SimTime lastSeen;
+    vanetza::units::Velocity speed;
+    vanetza::units::Angle heading;
+    Position position;
+};
 
 class ClusterService : public ItsG5Service
 {
@@ -32,8 +58,43 @@ class ClusterService : public ItsG5Service
         void handleMessage(omnetpp::cMessage*) override;
 
     private:
-        omnetpp::cMessage* m_self_msg;
-        traci::VehicleController* mVehicleController = nullptr;
+        void performClusterMaintenance();
+        void formCluster();
+        void joinCluster(uint32_t clusterHeadId);
+        void leaveCluster();
+        bool shouldBecomeClusterHead();
+        bool isEligibleForClustering(const LocalDynamicMap::Cam& cam);
+        
+        void processClusterMessage(omnetpp::cPacket* packet);
+        void sendClusterAdvertisement();
+        void sendJoinRequest(uint32_t clusterHeadId);
+        void sendLeaveNotification();
+        
+        std::vector<uint32_t> findNearbyVehicles();
+        bool isVehicleInClusterRange(const LocalDynamicMap::Cam& cam);
+        uint32_t selectClusterHead(const std::vector<uint32_t>& candidates);
+        void updateClusterMember(uint32_t stationId, const LocalDynamicMap::Cam& cam);
+        void removeExpiredMembers();
+        
+        vanetza::units::Length mClusterRange;
+        vanetza::units::Velocity mMaxSpeedDifference;
+        vanetza::units::Angle mMaxHeadingDifference;
+        omnetpp::SimTime mMaintenanceInterval;
+        omnetpp::SimTime mMemberTimeout;
+        
+        ClusterRole mRole;
+        uint32_t mClusterId;
+        uint32_t mClusterHeadId;
+        std::map<uint32_t, ClusterMember> mClusterMembers;
+        omnetpp::SimTime mLastMaintenance;
+        
+        const LocalDynamicMap* mLocalDynamicMap;
+        const VehicleDataProvider* mVehicleDataProvider;
+        const Timer* mTimer;
+        traci::VehicleController* mVehicleController;
+        
+        omnetpp::cMessage* mMaintenanceTimer;
+        omnetpp::cMessage* mAdvertisementTimer;
 };
 
 } // namespace artery

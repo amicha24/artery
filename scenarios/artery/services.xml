@@ -13,4 +13,10 @@
 			<penetration rate="0.1" />
 		</filters>
 	</service>
+	<service type="artery.application.ClusterService">
+		<listener port="4713" />
+		<filters>
+			<penetration rate="0.5" />
+		</filters>
+	</service>
 </services>
