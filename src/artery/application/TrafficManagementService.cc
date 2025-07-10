@@ -203,7 +203,7 @@ bool TrafficManagementService::shouldRecommendSpeedChange()
 
 vanetza::asn1::Denm TrafficManagementService::createCongestionMessage()
 {
-    vanetza::asn1::Denm message;
+    auto message = vanetza::asn1::allocate<vanetza::asn1::Denm>();
     
     message->header.protocolVersion = 2;
     message->header.messageID = ItsPduHeader__messageID_denm;
@@ -232,7 +232,7 @@ vanetza::asn1::Denm TrafficManagementService::createCongestionMessage()
 
 vanetza::asn1::Denm TrafficManagementService::createSpeedRecommendationMessage()
 {
-    vanetza::asn1::Denm message;
+    auto message = vanetza::asn1::allocate<vanetza::asn1::Denm>();
     
     message->header.protocolVersion = 2;
     message->header.messageID = ItsPduHeader__messageID_denm;

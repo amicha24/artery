@@ -38,7 +38,6 @@ protected:
     void handleMessage(omnetpp::cMessage*) override;
 
 private:
-private:
     bool detectCongestion();
     bool detectSlowTraffic();
     bool shouldRecommendSpeedChange();
@@ -50,6 +49,7 @@ private:
     
     bool checkVehicleDensity();
     bool checkAverageSpeed();
+    
     double mCongestionSpeedThreshold;
     double mHighDensityThreshold;
     double mRecommendedSpeed;
