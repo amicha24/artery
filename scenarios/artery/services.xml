@@ -13,4 +13,10 @@
 			<penetration rate="0.1" />
 		</filters>
 	</service>
+	<service type="artery.application.TrafficManagementService">
+		<listener port="4712" />
+		<filters>
+			<penetration rate="0.3" />
+		</filters>
+	</service>
 </services>
