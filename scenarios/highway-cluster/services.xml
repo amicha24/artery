@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <services>
-    <service type="PoliceServiceStoryboard">
-        <listener port="8001" />
+    <service type="ClusteringService">
+        <listener port="8002" />
         <filters><name pattern="police0" /></filters>
     </service>
-    <service type="ClearLaneService">
-        <listener port="8001" />
+    <service type="ClusterLaneService">
+        <listener port="8002" />
         <filters><name pattern="police0" match="inverse" /></filters>
     </service>
 </services>
