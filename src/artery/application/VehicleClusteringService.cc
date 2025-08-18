@@ -1,5 +1,7 @@
 #include "artery/application/VehicleClusteringService.h"
+
 #include <vanetza/facilities/cam_functions.hpp>
+
 #include <algorithm>
 #include <cmath>
 
@@ -115,22 +117,22 @@ std::vector<VehicleClusteringService::Member> VehicleClusteringService::collectM
     return out;
 }
 
-static inline double deg2rad(double d) { return d * M_PI / 180.0; }
+static inline double deg2rad(double d)
+{
+    return d * M_PI / 180.0;
+}
 
 double VehicleClusteringService::geoDistanceMeters(double lat1, double lon1, double lat2, double lon2)
 {
     static const double R = 6371000.0;
     const double dLat = deg2rad(lat2 - lat1);
     const double dLon = deg2rad(lon2 - lon1);
-    const double a = std::sin(dLat/2)*std::sin(dLat/2) +
-                     std::cos(deg2rad(lat1))*std::cos(deg2rad(lat2))*
-                     std::sin(dLon/2)*std::sin(dLon/2);
-    const double c = 2 * std::atan2(std::sqrt(a), std::sqrt(1-a));
+    const double a = std::sin(dLat / 2) * std::sin(dLat / 2) + std::cos(deg2rad(lat1)) * std::cos(deg2rad(lat2)) * std::sin(dLon / 2) * std::sin(dLon / 2);
+    const double c = 2 * std::atan2(std::sqrt(a), std::sqrt(1 - a));
     return R * c;
 }
 
-std::vector<VehicleClusteringService::Cluster>
-VehicleClusteringService::clusterSpatial(const std::vector<Member>& mbs)
+std::vector<VehicleClusteringService::Cluster> VehicleClusteringService::clusterSpatial(const std::vector<Member>& mbs)
 {
     const double eps = mEpsilonMeters;
     const int minPts = mMinPts;
@@ -141,7 +143,8 @@ VehicleClusteringService::clusterSpatial(const std::vector<Member>& mbs)
     auto regionQuery = [&](int i) {
         std::vector<int> neighbors;
         for (int j = 0; j < n; ++j) {
-            if (i == j) continue;
+            if (i == j)
+                continue;
             if (geoDistanceMeters(mbs[i].lat, mbs[i].lon, mbs[j].lat, mbs[j].lon) <= eps) {
                 neighbors.push_back(j);
             }
@@ -150,7 +153,8 @@ VehicleClusteringService::clusterSpatial(const std::vector<Member>& mbs)
     };
 
     for (int i = 0; i < n; ++i) {
-        if (labels[i] != -1) continue;
+        if (labels[i] != -1)
+            continue;
         auto neighbors = regionQuery(i);
         if (static_cast<int>(neighbors.size()) + 1 < minPts) {
             labels[i] = mAllowSingletons ? clusterId++ : -2;
@@ -160,8 +164,10 @@ VehicleClusteringService::clusterSpatial(const std::vector<Member>& mbs)
         std::vector<int> seeds = neighbors;
         for (size_t k = 0; k < seeds.size(); ++k) {
             int p = seeds[k];
-            if (labels[p] == -2) labels[p] = clusterId;
-            if (labels[p] != -1) continue;
+            if (labels[p] == -2)
+                labels[p] = clusterId;
+            if (labels[p] != -1)
+                continue;
             labels[p] = clusterId;
             auto n2 = regionQuery(p);
             if (static_cast<int>(n2.size()) + 1 >= minPts) {
@@ -178,49 +184,57 @@ VehicleClusteringService::clusterSpatial(const std::vector<Member>& mbs)
     }
     for (int i = 0; i < n; ++i) {
         int cid = labels[i];
-        if (cid >= 0) clusters[cid].members.push_back(mbs[i]);
+        if (cid >= 0)
+            clusters[cid].members.push_back(mbs[i]);
     }
     return clusters;
 }
 
 double VehicleClusteringService::median(std::vector<double> v)
 {
-    if (v.empty()) return 0.0;
+    if (v.empty())
+        return 0.0;
     std::sort(v.begin(), v.end());
     size_t m = v.size() / 2;
-    if (v.size() % 2) return v[m];
-    return 0.5 * (v[m-1] + v[m]);
+    if (v.size() % 2)
+        return v[m];
+    return 0.5 * (v[m - 1] + v[m]);
 }
 
-std::vector<VehicleClusteringService::Cluster>
-VehicleClusteringService::clusterSpeed(const std::vector<Member>& mbs)
+std::vector<VehicleClusteringService::Cluster> VehicleClusteringService::clusterSpeed(const std::vector<Member>& mbs)
 {
     std::vector<double> speeds;
     speeds.reserve(mbs.size());
-    for (auto& m : mbs) speeds.push_back(m.speedKmh);
+    for (auto& m : mbs)
+        speeds.push_back(m.speedKmh);
     double med = median(speeds);
     const double tol = mSpeedToleranceKmh;
 
     Cluster c;
     c.id = 0;
     for (auto& m : mbs) {
-        if (std::abs(m.speedKmh - med) <= tol) c.members.push_back(m);
+        if (std::abs(m.speedKmh - med) <= tol)
+            c.members.push_back(m);
     }
     if (!mAllowSingletons && static_cast<int>(c.members.size()) < mMinPts) {
         return {};
     }
     c.medianSpeedKmh = med;
-    return { c };
+    return {c};
 }
 
 void VehicleClusteringService::chooseHeads(std::vector<Cluster>& clusters)
 {
     const SimTime now = simTime();
     for (auto& c : clusters) {
-        if (c.members.empty()) continue;
+        if (c.members.empty())
+            continue;
         if (mMode == Mode::Spatial) {
             double latSum = 0.0, lonSum = 0.0;
-            for (auto& m : c.members) { latSum += m.lat; lonSum += m.lon; }
+            for (auto& m : c.members) {
+                latSum += m.lat;
+                lonSum += m.lon;
+            }
             c.centroidLat = latSum / c.members.size();
             c.centroidLon = lonSum / c.members.size();
             double best = 1e100;
@@ -228,7 +242,8 @@ void VehicleClusteringService::chooseHeads(std::vector<Cluster>& clusters)
             for (auto& m : c.members) {
                 double d = geoDistanceMeters(m.lat, m.lon, c.centroidLat, c.centroidLon);
                 if (d < best || (std::abs(d - best) < 1e-6 && m.stationId < head)) {
-                    best = d; head = m.stationId;
+                    best = d;
+                    head = m.stationId;
                 }
             }
             c.headStationId = head;
@@ -238,7 +253,8 @@ void VehicleClusteringService::chooseHeads(std::vector<Cluster>& clusters)
             for (auto& m : c.members) {
                 double d = std::abs(m.speedKmh - c.medianSpeedKmh);
                 if (d < best || (std::abs(d - best) < 1e-6 && m.stationId < head)) {
-                    best = d; head = m.stationId;
+                    best = d;
+                    head = m.stationId;
                 }
             }
             c.headStationId = head;
@@ -268,4 +284,4 @@ void VehicleClusteringService::emitStats(const std::vector<Cluster>& clusters)
     }
 }
 
-} // namespace artery
+}  // namespace artery
