@@ -4,7 +4,6 @@
 #include "artery/application/ItsG5Service.h"
 #include "artery/application/LocalDynamicMap.h"
 #include "artery/application/VehicleDataProvider.h"
-#include "artery/application/Timer.h"
 #include <omnetpp/cmessage.h>
 #include <unordered_map>
 #include <vector>
@@ -57,7 +56,6 @@ class VehicleClusteringService : public ItsG5Service
 
         const LocalDynamicMap* mLdm = nullptr;
         const VehicleDataProvider* mVdp = nullptr;
-        const Timer* mTimer = nullptr;
 
         omnetpp::cMessage* mTick = nullptr;
         bool mDirty = false;

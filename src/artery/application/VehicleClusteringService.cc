@@ -1,6 +1,4 @@
 #include "artery/application/VehicleClusteringService.h"
-#include "artery/utility/InitStages.h"
-#include "artery/traci/VehicleController.h"
 #include <vanetza/facilities/cam_functions.hpp>
 #include <algorithm>
 #include <cmath>
@@ -44,7 +42,6 @@ void VehicleClusteringService::initialize()
 
     mLdm = &getFacilities().get_const<LocalDynamicMap>();
     mVdp = &getFacilities().get_const<VehicleDataProvider>();
-    mTimer = &getFacilities().get_const<Timer>();
 
     subscribe(scSignalCamReceived);
     mTick = new cMessage("VehicleClustering tick");
@@ -53,7 +50,7 @@ void VehicleClusteringService::initialize()
 
 void VehicleClusteringService::finish()
 {
-    getMiddleware().unsubscribe(scSignalCamReceived, this);
+    unsubscribe(scSignalCamReceived);
     ItsG5Service::finish();
 }
 
