@@ -7,6 +7,7 @@
 
 #include <omnetpp/simtime.h>
 #include <omnetpp/cmessage.h>
+#include <cstdint>
 
 #include <unordered_map>
 #include <vector>

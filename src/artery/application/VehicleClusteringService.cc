@@ -78,7 +78,7 @@ void VehicleClusteringService::trigger()
     emitStats(clusters);
 }
 
-void VehicleClusteringService::receiveSignal(cComponent*, simsignal_t signal, cObject*, cObject*)
+void VehicleClusteringService::receiveSignal(cComponent* /*source*/, simsignal_t signal, cObject* /*obj*/, cObject* /*details*/)
 {
     if (signal == scSignalCamReceived) {
         // no-op; subscribed to maintain awareness of neighbor updates
