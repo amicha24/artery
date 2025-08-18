@@ -5,6 +5,7 @@
 #include "artery/application/LocalDynamicMap.h"
 #include "artery/application/VehicleDataProvider.h"
 
+#include <omnetpp/simtime.h>
 #include <omnetpp/cmessage.h>
 
 #include <unordered_map>

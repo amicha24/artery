@@ -117,6 +117,7 @@ std::vector<VehicleClusteringService::Member> VehicleClusteringService::collectM
 }
 
 static constexpr double kPi = 3.14159265358979323846;
+static constexpr double kHuge = 1e100;
 static inline double deg2rad(double d)
 {
     return d * kPi / 180.0;
@@ -237,7 +238,7 @@ void VehicleClusteringService::chooseHeads(std::vector<Cluster>& clusters)
             }
             c.centroidLat = latSum / c.members.size();
             c.centroidLon = lonSum / c.members.size();
-            double best = 1e100;
+            double best = kHuge;
             uint32_t head = 0;
             for (auto& m : c.members) {
                 double d = geoDistanceMeters(m.lat, m.lon, c.centroidLat, c.centroidLon);
@@ -248,7 +249,7 @@ void VehicleClusteringService::chooseHeads(std::vector<Cluster>& clusters)
             }
             c.headStationId = head;
         } else {
-            double best = 1e100;
+            double best = kHuge;
             uint32_t head = 0;
             for (auto& m : c.members) {
                 double d = std::abs(m.speedKmh - c.medianSpeedKmh);
