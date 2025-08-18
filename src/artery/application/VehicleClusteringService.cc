@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
 
 using namespace omnetpp;
 
@@ -107,8 +108,9 @@ std::vector<VehicleClusteringService::Member> VehicleClusteringService::collectM
         const auto& hf = cam.cam.camParameters.highFrequencyContainer;
         Member m;
         m.stationId = cam.header.stationID;
-        m.lat = bc.referencePosition.latitude.value();
-        m.lon = bc.referencePosition.longitude.value();
+        static constexpr double kMicroDeg = 1e6;
+        m.lat = static_cast<double>(bc.referencePosition.latitude) / kMicroDeg;
+        m.lon = static_cast<double>(bc.referencePosition.longitude) / kMicroDeg;
         m.speedKmh = vanetza::facilities::speed_value_kmh(hf.basicVehicleContainerHighFrequency.speed);
         m.lastSeen = now;
         out.push_back(m);
