@@ -82,7 +82,7 @@ void VehicleClusteringService::trigger()
 void VehicleClusteringService::receiveSignal(cComponent*, simsignal_t signal, cObject*, cObject*)
 {
     if (signal == scSignalCamReceived) {
-        mDirty = true;
+        // no-op; subscribed to maintain awareness of neighbor updates
     }
 }
 
@@ -104,10 +104,10 @@ std::vector<VehicleClusteringService::Member> VehicleClusteringService::collectM
     const auto& entries = mLdm->allEntries();
     for (const auto& kv : entries) {
         const auto& cam = kv.second.cam();
-        const auto& bc = cam->cam.camParameters.basicContainer;
-        const auto& hf = cam->cam.camParameters.highFrequencyContainer;
+        const auto& bc = cam.cam.camParameters.basicContainer;
+        const auto& hf = cam.cam.camParameters.highFrequencyContainer;
         Member m;
-        m.stationId = cam->header.stationID;
+        m.stationId = cam.header.stationID;
         m.lat = bc.referencePosition.latitude.value();
         m.lon = bc.referencePosition.longitude.value();
         m.speedKmh = vanetza::facilities::speed_value_kmh(hf.basicVehicleContainerHighFrequency.speed);

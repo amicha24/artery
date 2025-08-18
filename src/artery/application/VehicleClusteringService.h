@@ -60,7 +60,6 @@ private:
     const VehicleDataProvider* mVdp = nullptr;
 
     omnetpp::cMessage* mTick = nullptr;
-    bool mDirty = false;
     std::unordered_map<int, uint32_t> mHeads;
     omnetpp::SimTime mLastAssignmentChange = omnetpp::SimTime::ZERO;
 
