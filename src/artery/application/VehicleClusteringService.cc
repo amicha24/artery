@@ -36,7 +36,6 @@ void VehicleClusteringService::initialize()
     mEpsilonMeters = par("epsilonRadius");
     mMinPts = par("minPts");
     mSpeedToleranceKmh = par("speedTolerance");
-    mWindowSeconds = par("windowSeconds");
     mIncludeSelf = par("includeSelf");
     mAllowSingletons = par("allowSingletons");
     mHeadStickiness = par("headStickiness");

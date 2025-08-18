@@ -50,7 +50,6 @@ private:
     double mEpsilonMeters = 50.0;
     int mMinPts = 3;
     double mSpeedToleranceKmh = 5.0;
-    omnetpp::SimTime mWindowSeconds = 1.0;
     bool mIncludeSelf = true;
     bool mAllowSingletons = false;
     bool mHeadStickiness = true;
