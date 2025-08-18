@@ -111,7 +111,7 @@ std::vector<VehicleClusteringService::Member> VehicleClusteringService::collectM
         static constexpr double kMicroDeg = 1e6;
         m.lat = static_cast<double>(bc.referencePosition.latitude) / kMicroDeg;
         m.lon = static_cast<double>(bc.referencePosition.longitude) / kMicroDeg;
-        m.speedKmh = vanetza::facilities::speed_value_kmh(hf.basicVehicleContainerHighFrequency.speed);
+        m.speedKmh = vanetza::facilities::speed_value_kmh(hf.choice.basicVehicleContainerHighFrequency.speed);
         m.lastSeen = now;
         out.push_back(m);
     }
@@ -208,14 +208,14 @@ std::vector<VehicleClusteringService::Cluster> VehicleClusteringService::cluster
 {
     std::vector<double> speeds;
     speeds.reserve(mbs.size());
-    for (auto& m : mbs)
+    for (const auto& m : mbs)
         speeds.push_back(m.speedKmh);
     double med = median(speeds);
     const double tol = mSpeedToleranceKmh;
 
     Cluster c;
     c.id = 0;
-    for (auto& m : mbs) {
+    for (const auto& m : mbs) {
         if (std::abs(m.speedKmh - med) <= tol)
             c.members.push_back(m);
     }
@@ -234,7 +234,7 @@ void VehicleClusteringService::chooseHeads(std::vector<Cluster>& clusters)
             continue;
         if (mMode == Mode::Spatial) {
             double latSum = 0.0, lonSum = 0.0;
-            for (auto& m : c.members) {
+            for (const auto& m : c.members) {
                 latSum += m.lat;
                 lonSum += m.lon;
             }
@@ -242,7 +242,7 @@ void VehicleClusteringService::chooseHeads(std::vector<Cluster>& clusters)
             c.centroidLon = lonSum / c.members.size();
             double best = kHuge;
             uint32_t head = 0;
-            for (auto& m : c.members) {
+            for (const auto& m : c.members) {
                 double d = geoDistanceMeters(m.lat, m.lon, c.centroidLat, c.centroidLon);
                 if (d < best || (std::abs(d - best) < 1e-6 && m.stationId < head)) {
                     best = d;
@@ -253,7 +253,7 @@ void VehicleClusteringService::chooseHeads(std::vector<Cluster>& clusters)
         } else {
             double best = kHuge;
             uint32_t head = 0;
-            for (auto& m : c.members) {
+            for (const auto& m : c.members) {
                 double d = std::abs(m.speedKmh - c.medianSpeedKmh);
                 if (d < best || (std::abs(d - best) < 1e-6 && m.stationId < head)) {
                     best = d;
