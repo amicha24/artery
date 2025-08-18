@@ -116,9 +116,10 @@ std::vector<VehicleClusteringService::Member> VehicleClusteringService::collectM
     return out;
 }
 
+static constexpr double kPi = 3.14159265358979323846;
 static inline double deg2rad(double d)
 {
-    return d * M_PI / 180.0;
+    return d * kPi / 180.0;
 }
 
 double VehicleClusteringService::geoDistanceMeters(double lat1, double lon1, double lat2, double lon2)
