@@ -6,10 +6,9 @@
 #include <cmath>
 #include <cstdint>
 
-using namespace omnetpp;
-
 namespace artery
 {
+using namespace omnetpp;
 
 static const simsignal_t scSignalCamReceived = cComponent::registerSignal("CamReceived");
 static const simsignal_t scClusterCount = cComponent::registerSignal("ClusterCount");
@@ -79,8 +78,11 @@ void VehicleClusteringService::trigger()
     emitStats(clusters);
 }
 
-void VehicleClusteringService::receiveSignal(cComponent* /*source*/, simsignal_t signal, cObject* /*obj*/, cObject* /*details*/)
+void VehicleClusteringService::receiveSignal(cComponent* source, simsignal_t signal, cObject* obj, cObject* details)
 {
+    (void)source;
+    (void)obj;
+    (void)details;
     if (signal == scSignalCamReceived) {
         // no-op; subscribed to maintain awareness of neighbor updates
     }
@@ -108,7 +110,6 @@ std::vector<VehicleClusteringService::Member> VehicleClusteringService::collectM
         const auto& hf = cam.cam.camParameters.highFrequencyContainer;
         Member m;
         m.stationId = cam.header.stationID;
-        static constexpr double kMicroDeg = 1e6;
         m.lat = static_cast<double>(bc.referencePosition.latitude) / kMicroDeg;
         m.lon = static_cast<double>(bc.referencePosition.longitude) / kMicroDeg;
         m.speedKmh = vanetza::facilities::speed_value_kmh(hf.choice.basicVehicleContainerHighFrequency.speed);
@@ -117,6 +118,10 @@ std::vector<VehicleClusteringService::Member> VehicleClusteringService::collectM
     }
     return out;
 }
+
+static constexpr double kMicroDeg = 1e6;
+static constexpr int kUnvisited = -1;
+static constexpr int kNoise = -2;
 
 static constexpr double kPi = 3.14159265358979323846;
 static constexpr double kHuge = 1e100;
@@ -140,7 +145,7 @@ std::vector<VehicleClusteringService::Cluster> VehicleClusteringService::cluster
     const double eps = mEpsilonMeters;
     const int minPts = mMinPts;
     const int n = static_cast<int>(mbs.size());
-    std::vector<int> labels(n, -1);
+    std::vector<int> labels(n, kUnvisited);
     int clusterId = 0;
 
     auto regionQuery = [&](int i) {
@@ -156,20 +161,20 @@ std::vector<VehicleClusteringService::Cluster> VehicleClusteringService::cluster
     };
 
     for (int i = 0; i < n; ++i) {
-        if (labels[i] != -1)
+        if (labels[i] != kUnvisited)
             continue;
         auto neighbors = regionQuery(i);
         if (static_cast<int>(neighbors.size()) + 1 < minPts) {
-            labels[i] = mAllowSingletons ? clusterId++ : -2;
+            labels[i] = mAllowSingletons ? clusterId++ : kNoise;
             continue;
         }
         labels[i] = clusterId;
         std::vector<int> seeds = neighbors;
         for (size_t k = 0; k < seeds.size(); ++k) {
             int p = seeds[k];
-            if (labels[p] == -2)
+            if (labels[p] == kNoise)
                 labels[p] = clusterId;
-            if (labels[p] != -1)
+            if (labels[p] != kUnvisited)
                 continue;
             labels[p] = clusterId;
             auto n2 = regionQuery(p);
