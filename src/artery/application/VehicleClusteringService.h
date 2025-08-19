@@ -55,7 +55,7 @@ private:
     bool mIncludeSelf = true;
     bool mAllowSingletons = false;
     bool mHeadStickiness = true;
-    omnetpp::SimTime mReassignmentCooldown = 2.0;
+    omnetpp::SimTime mReassignmentCooldown = omnetpp::SimTime::ZERO;
 
     const LocalDynamicMap* mLdm = nullptr;
     const VehicleDataProvider* mVdp = nullptr;
