@@ -1,5 +1,6 @@
 #include "artery/application/VehicleClusteringService.h"
 
+#include <vanetza/asn1/cam.hpp>
 #include <vanetza/facilities/cam_functions.hpp>
 
 #include <algorithm>
@@ -78,11 +79,9 @@ void VehicleClusteringService::trigger()
     emitStats(clusters);
 }
 
-void VehicleClusteringService::receiveSignal(cComponent* source, simsignal_t signal, cObject* obj, cObject* details)
+void VehicleClusteringService::receiveSignal(
+    [[maybe_unused]] cComponent* source, simsignal_t signal, [[maybe_unused]] cObject* obj, [[maybe_unused]] cObject* details)
 {
-    (void)source;
-    (void)obj;
-    (void)details;
     if (signal == scSignalCamReceived) {
         // no-op; subscribed to maintain awareness of neighbor updates
     }
